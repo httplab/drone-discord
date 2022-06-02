@@ -1,9 +1,4 @@
-# BDC Drone discord plugin
-[![Software License](https://img.shields.io/badge/license-MIT-green)](https://github.com/brazil-data-cube/bdc-drone-discord/master/LICENSE)
-[![Build Status](https://drone.dpi.inpe.br/api/badges/brazil-data-cube/bdc-drone-discord/status.svg)](https://drone.dpi.inpe.br/brazil-data-cube/bdc-drone-discord)
-![Docker Image Version (latest semver)](https://img.shields.io/docker/v/brazildatacube/bdc-drone-discord)
-[![Software Life Cycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
-[![Join us at Discord](https://img.shields.io/discord/689541907621085198?logo=discord&logoColor=ffffff&color=7389D8)](https://discord.com/channels/689541907621085198#)
+# Drone discord plugin
 
 This is a drone plugin for notifying Drone build status on Discord using a webhook.
 ## Usage
@@ -14,7 +9,7 @@ Then add the following step to your `.drone.yml`
 
 ```yml
 - name: discord-notify
-  image: brazildatacube/bdc-drone-discord
+  image: httplab/drone-discord
   settings:
     webhook: <webhook_url>
   when:
@@ -27,7 +22,7 @@ You can use a secret for your `webhook_url`.
 
 ```yml
 - name: discord-notify
-  image: brazildatacube/bdc-drone-discord
+  image: httplab/drone-discord
   settings:
     webhook:
       from_secret: discord_webhook
@@ -49,7 +44,7 @@ data: <your_encrypted_secret>
 ### **Building**
 Just run in your shell
 ```shell
-GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o bdc-drone-discord
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o drone-discord
 ```
 
 ### **Running locally**
@@ -69,5 +64,5 @@ To run this plugin locally make sure you have set the following enviroment varia
 
 Then
 ```shell
-./bdc-drone-discord
+./drone-discord
 ```

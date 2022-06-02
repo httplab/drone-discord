@@ -25,8 +25,9 @@ type EmbedAuthor struct {
 
 // EmbedField for Embed Field Structure
 type EmbedField struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Inline bool   `json:"inline"`
 }
 
 // Embed is for Embed Structure
@@ -73,26 +74,50 @@ func Color() int {
 }
 
 func main() {
-	var status string
+	// var description string
+	// switch os.Getenv("DRONE_BUILD_EVENT") {
+	// case "push":
+	// 	description = fmt.Sprintf("**%s** pushed to `%s`.", os.Getenv("DRONE_COMMIT_AUTHOR"), os.Getenv("DRONE_COMMIT_BRANCH"))
+	// case "pull_request":
+	// 	description = fmt.Sprintf("**%s** opened a pull request from `%s` to `%s`", os.Getenv("DRONE_COMMIT_AUTHOR"), os.Getenv("DRONE_SOURCE_BRANCH"), os.Getenv("DRONE_COMMIT_BRANCH"))
+	// case "tag":
+	// 	description = fmt.Sprintf("**%s** created tag `%s`.", os.Getenv("DRONE_COMMIT_AUTHOR"), os.Getenv("DRONE_TAG"))
+	// }
+	var emoji string
+	title := "%s Build %s #**%s**"
+	fields := []EmbedField{
+		{
+			Name:   "Branch",
+			Value:  os.Getenv("DRONE_COMMIT_BRANCH"),
+			Inline: true,
+		},
+		{
+			Name:   "Status",
+			Value:  os.Getenv("DRONE_BUILD_STATUS"),
+			Inline: true,
+		},
+		{
+			Name:   "Changes",
+			Value:  os.Getenv("DRONE_COMMIT_LINK"),
+			Inline: true,
+		},
+	}
+	if os.Getenv("DRONE_BUILD_STATUS") == "failure" {
+		emoji = ":red_circle:"
+		failed_steps := EmbedField{
+			Name:   "Failed steps",
+			Value:  os.Getenv("DRONE_FAILED_STEPS"),
+			Inline: false,
+		}
 
-	if os.Getenv("DRONE_BUILD_STATUS") == "success" {
-		status = "succeded"
+		fields = append(fields, failed_steps)
 	} else {
-		status = "failed"
+		emoji = ":green_circle:"
 	}
-	var description string
-	switch os.Getenv("DRONE_BUILD_EVENT") {
-	case "push":
-		description = fmt.Sprintf("**%v** pushed to `%v`.", os.Getenv("DRONE_COMMIT_AUTHOR"), os.Getenv("DRONE_COMMIT_BRANCH"))
-	case "pull_request":
-		description = fmt.Sprintf("**%v** opened a pull request from `%v` to `%v`", os.Getenv("DRONE_COMMIT_AUTHOR"), os.Getenv("DRONE_SOURCE_BRANCH"), os.Getenv("DRONE_COMMIT_BRANCH"))
-	case "tag":
-		description = fmt.Sprintf("**%v** created tag `%v`.", os.Getenv("DRONE_COMMIT_AUTHOR"), os.Getenv("DRONE_TAG"))
-	}
-	title := "Build #**%v** on `%v` has %v."
 	embed := Embed{
-		Title:       fmt.Sprintf(title, os.Getenv("DRONE_BUILD_NUMBER"), os.Getenv("DRONE_REPO"), status),
-		Description: description,
+		Title:       fmt.Sprintf(title, emoji, os.Getenv("DRONE_REPO"), os.Getenv("DRONE_BUILD_NUMBER")),
+		Description: os.Getenv("DRONE_COMMIT_MESSAGE"),
+		Fields:      fields,
 		URL:         os.Getenv("DRONE_BUILD_LINK"),
 		Color:       Color(),
 		Author: EmbedAuthor{
