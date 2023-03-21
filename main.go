@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -73,6 +74,9 @@ func Color() int {
 	}
 }
 
+const username = "Drone"
+const avatarURL = "https://oyster.ignimgs.com/mediawiki/apis.ign.com/starcraft-2/3/36/Drone.jpg"
+
 func main() {
 	// var description string
 	// switch os.Getenv("DRONE_BUILD_EVENT") {
@@ -83,6 +87,7 @@ func main() {
 	// case "tag":
 	// 	description = fmt.Sprintf("**%s** created tag `%s`.", os.Getenv("DRONE_COMMIT_AUTHOR"), os.Getenv("DRONE_TAG"))
 	// }
+	log.Print("Hello!")
 	var emoji string
 	title := "%s Build %s #**%s**"
 	fields := []EmbedField{
@@ -126,7 +131,9 @@ func main() {
 		},
 	}
 	payload := &Payload{
-		Embeds: []Embed{embed},
+		Username:  username,
+		AvatarURL: avatarURL,
+		Embeds:    []Embed{embed},
 	}
 
 	payloadBuf := new(bytes.Buffer)
@@ -140,5 +147,16 @@ func main() {
 		log.Print(e)
 		os.Exit(1)
 	}
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusNoContent {
+		log.Print(res.StatusCode)
+		bodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		bodyString := string(bodyBytes)
+		log.Print(bodyString)
+		os.Exit(1)
+	}
 	defer res.Body.Close()
+	log.Print("Bye!")
 }
